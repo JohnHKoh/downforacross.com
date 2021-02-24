@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useUpdateEffect} from 'react-use';
 import {Helmet} from 'react-helmet';
 import {makeStyles} from '@material-ui/core';
@@ -66,43 +66,49 @@ export const ModernArt: React.FC<{gid: string}> = (props) => {
 
   // these lines could be `const events = useGameEvents()`
   const [events, setEvents] = useState<ModernArtEvent[]>([]);
+  const [loaded, setLoaded] = useState(false);
   useUpdateEffect(() => {
     setEvents([]);
     const {syncPromise, unsubscribe} = subscribeToGameEvents(socket, gid, setEvents);
-    const icons = ['🤨', '🧐', '🥺'];
     console.log('subscribing', syncPromise);
-    const names = [
-      'manuel',
-      'melim',
-      'sigrid',
-      'ramon',
-      'rafael',
-      'daniel',
-      'carvaliho',
-      'thaler',
-      'martins',
-      'silveira',
-    ];
-    syncPromise.then(() =>
-      sendEvent({
-        type: 'update_name',
-        params: {
-          id: getUser().id,
-          name: names[Math.floor(Math.random() * names.length)],
-          icon: icons[Math.floor(Math.random() * icons.length)],
-        },
-      })
-    );
+    syncPromise.then(() => {
+      setLoaded(true);
+    });
     return unsubscribe;
   }, [gid, socket]);
+  const gameState = useGameState(events);
+  const actions = usePlayerActions(sendEvent);
+
+  const id = getUser().id;
+  useEffect(() => {
+    if (loaded) {
+      if (!(id in gameState.users)) {
+        const icons = ['🤨', '🧐', '🥺'];
+        const names = [
+          'manuel',
+          'melim',
+          'sigrid',
+          'ramon',
+          'rafael',
+          'daniel',
+          'carvaliho',
+          'thaler',
+          'martins',
+          'silveira',
+        ];
+        const name = names[Math.floor(Math.random() * names.length)];
+        const icon = icons[Math.floor(Math.random() * icons.length)];
+
+        actions.updateName(id, name, icon);
+      }
+    }
+  }, [loaded]);
 
   const classes = useStyles();
-  const gameState = useGameState(events);
 
   console.log('Events', events);
   console.log('Game State:', gameState);
 
-  const actions = usePlayerActions(sendEvent);
   const users = _.values(gameState.users);
 
   const [currentBid, setCurrentBid] = useState(0);
@@ -113,6 +119,7 @@ export const ModernArt: React.FC<{gid: string}> = (props) => {
   };
 
   const submitBid = () => {
+    // sendEvent
     window.alert('current bid is ' + currentBid);
   };
 
@@ -164,6 +171,21 @@ export const ModernArt: React.FC<{gid: string}> = (props) => {
       ))}
       {gameState.currentAuction.auctionType == AuctionType.HIDDEN && (
         <div>
+          <h1>
+            Player {gameState.currentAuction.auctioneer} is holding a {gameState.currentAuction.auctionType}{' '}
+            auction for a painting {gameState.currentAuction.painting.painter}
+          </h1>
+          <input type="number" onChange={handleInputChange} value={currentBid} />
+          <button onClick={submitBid}> Submit Bid </button>
+        </div>
+      )}
+      {gameState.currentAuction.auctionType == AuctionType.OPEN && (
+        <div>
+          <h1>
+            Player {gameState.currentAuction.auctioneer} is holding a {gameState.currentAuction.auctionType}{' '}
+            auction for a painting {gameState.currentAuction.painting.painter}
+          </h1>
+          <h1>Highest Bid is currently 2 by user dog </h1>
           <input type="number" onChange={handleInputChange} value={currentBid} />
           <button onClick={submitBid}> Submit Bid </button>
         </div>
