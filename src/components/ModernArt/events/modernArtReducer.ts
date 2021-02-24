@@ -1,7 +1,7 @@
 import _ from 'lodash';
 // @ts-ignore
 import pseudoRandom from 'pseudo-random';
-import {ModernArtState, ModernArtEvent} from './types';
+import {ModernArtState, ModernArtEvent, AuctionType} from './types';
 
 export const modernArtReducer = (state: ModernArtState, event: ModernArtEvent): ModernArtState => {
   if (event.type === 'start_game') {
@@ -39,7 +39,7 @@ export const modernArtReducer = (state: ModernArtState, event: ModernArtEvent): 
         4: [10, 5, 3],
       };
       const cardsToDeal = CARDS_TO_DEAL[`${_.size(state.users)}`]?.[state.roundIndex] ?? 0;
-      const auctionTypes = ['hidden', 'open'];
+      const auctionTypes = _.values(AuctionType);
 
       const colors = ['red', 'blue', 'yellow', 'green', 'purple'];
       const ALL_CARDS = _.flatMap(colors, (color) =>
@@ -75,12 +75,23 @@ export const modernArtReducer = (state: ModernArtState, event: ModernArtEvent): 
   }
 
   if (event.type === 'start_auction') {
+    const cards = state.users[event.params.userId].cards;
+    const card = cards[event.params.idx];
     return {
       ...state,
       users: {
         ...state.users,
-        [event.params.id]: {
-          ...state.users[event.params.id],
+        [event.params.userId]: {
+          ...state.users[event.params.userId],
+          cards: _.without(cards, card),
+        },
+      },
+      currentAuction: {
+        auctionType: card.auctionType as AuctionType,
+        auctioneer: event.params.userId,
+        painting: {
+          painter: '',
+          id: 0,
         },
       },
     };

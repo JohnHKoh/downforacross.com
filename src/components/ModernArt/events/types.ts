@@ -4,12 +4,13 @@ export interface ModernArtEvent {
 }
 
 interface Card {
+  // todo unify w/ painting
   color: string;
-  auctionType: string;
+  auctionType: AuctionType;
 }
 
 export enum AuctionType {
-  // OPEN = 'OPEN',
+  OPEN = 'OPEN',
   HIDDEN = 'HIDDEN',
   // ONE_OFFER = 'ONE_OFFER',
   // FIXED = 'FIXED',
