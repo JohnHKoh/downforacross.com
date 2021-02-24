@@ -3,12 +3,6 @@ export interface ModernArtEvent {
   params: any;
 }
 
-interface Card {
-  // todo unify w/ painting
-  color: string;
-  auctionType: AuctionType;
-}
-
 export enum AuctionType {
   OPEN = 'OPEN',
   HIDDEN = 'HIDDEN',
@@ -20,6 +14,7 @@ export enum AuctionType {
 export interface Painting {
   painter: string;
   id: number;
+  auctionType: AuctionType;
 }
 export interface Auction {
   auctionType: AuctionType;
@@ -32,13 +27,13 @@ export interface Auction {
 }
 export interface ModernArtState {
   started: boolean;
-  deck: Card[];
+  deck: Painting[];
   users: {
     [id: string]: {
       id: string;
       name: string;
       icon: string;
-      cards: Card[];
+      cards: Painting[];
     };
   };
   roundIndex: number;
@@ -53,11 +48,13 @@ export const initialState: ModernArtState = {
   roundIndex: 0,
   roundStarted: false,
   currentAuction: {
+    // for testing
     auctionType: AuctionType.HIDDEN,
     auctioneer: 'cat',
     painting: {
       painter: 'sigrid',
       id: 1,
+      auctionType: AuctionType.HIDDEN,
     },
     highestBid: null,
     highestBidder: null,
