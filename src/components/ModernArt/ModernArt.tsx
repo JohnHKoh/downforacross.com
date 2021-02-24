@@ -129,7 +129,6 @@ export const ModernArt: React.FC<{gid: string}> = (props) => {
       <div className={classes.nextButton}>
         <button onClick={actions.step}>Next!</button>
       </div>
-
       {gameState.started && <div className={classes.message}>Game has Started</div>}
       <div className={classes.usersList}>
         {users.length}
@@ -141,7 +140,7 @@ export const ModernArt: React.FC<{gid: string}> = (props) => {
             <div className={classes.cards}>
               {user.cards.map((card, i) => (
                 <div className={classes.card}>
-                  <div className={classes.cardHeader} style={{backgroundColor: card.color}} />
+                  <div className={classes.cardHeader} style={{backgroundColor: card.painter}} />
                   {card.auctionType}
                   <button
                     onClick={() => {
